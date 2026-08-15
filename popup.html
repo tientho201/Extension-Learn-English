@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Learn English</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>Learn English</h1>
+    <button id="openOptions" class="icon-btn" title="Tùy chọn">⚙️</button>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="pronunciation">Phiên âm</button>
+    <button class="tab-btn" data-tab="phrase">Từ ghép</button>
+    <button class="tab-btn" data-tab="usage">Cách dùng</button>
+    <button class="tab-btn" data-tab="compare">So sánh</button>
+    <button class="tab-btn" data-tab="synonyms">Đồng nghĩa</button>
+  </nav>
+
+  <main>
+    <section id="tab-pronunciation" class="tab-panel active">
+      <form id="pronunciationForm" class="input-row">
+        <input
+          type="text"
+          id="newWordInput"
+          placeholder="Nhập từ mới, ví dụ: thorough"
+          autocomplete="off"
+          required
+        />
+        <button type="submit">Kiểm tra</button>
+      </form>
+      <div id="pronunciationStatus" class="status"></div>
+      <div id="pronunciationResult" class="result"></div>
+
+      <h2 class="list-title">Danh sách từ đã lưu</h2>
+      <ul id="wordList" class="item-list"></ul>
+    </section>
+
+    <section id="tab-phrase" class="tab-panel">
+      <form id="phraseForm" class="input-row">
+        <input
+          type="text"
+          id="phraseInput"
+          placeholder="Nhập cụm từ, ví dụ: give up"
+          autocomplete="off"
+          required
+        />
+        <button type="submit">Giải nghĩa</button>
+      </form>
+      <div id="phraseStatus" class="status"></div>
+      <div id="phraseResult" class="result"></div>
+
+      <h2 class="list-title">Danh sách cụm từ đã lưu</h2>
+      <ul id="phraseList" class="item-list"></ul>
+    </section>
+
+    <section id="tab-usage" class="tab-panel">
+      <p class="tab-desc">Dán một từ để xem nghĩa và nên dùng trong ngữ cảnh nào.</p>
+      <form id="usageForm" class="input-row">
+        <input
+          type="text"
+          id="usageWordInput"
+          placeholder="Nhập từ, ví dụ: seek"
+          autocomplete="off"
+          required
+        />
+        <button type="submit">Xem cách dùng</button>
+      </form>
+      <div id="usageStatus" class="status"></div>
+      <div id="usageResult" class="result"></div>
+
+      <h2 class="list-title">Danh sách đã lưu</h2>
+      <ul id="usageList" class="item-list"></ul>
+    </section>
+
+    <section id="tab-compare" class="tab-panel">
+      <p class="tab-desc">Dán 2 từ gần nghĩa để so sánh khi nào nên dùng từ nào cho phù hợp ngữ cảnh.</p>
+      <form id="compareForm" class="input-row compare-row">
+        <input
+          type="text"
+          id="compareWordAInput"
+          placeholder="Từ A, ví dụ: search"
+          autocomplete="off"
+          required
+        />
+        <input
+          type="text"
+          id="compareWordBInput"
+          placeholder="Từ B, ví dụ: seek"
+          autocomplete="off"
+          required
+        />
+        <button type="submit">So sánh</button>
+      </form>
+      <div id="compareStatus" class="status"></div>
+      <div id="compareResult" class="result"></div>
+
+      <h2 class="list-title">Danh sách đã lưu</h2>
+      <ul id="compareList" class="item-list"></ul>
+    </section>
+
+    <section id="tab-synonyms" class="tab-panel">
+      <p class="tab-desc">Gõ một từ để xem các từ đồng nghĩa, từ loại, phiên âm và nên dùng khi nào.</p>
+      <form id="synonymsForm" class="input-row">
+        <input
+          type="text"
+          id="synonymsWordInput"
+          placeholder="Nhập từ, ví dụ: happy"
+          autocomplete="off"
+          required
+        />
+        <button type="submit">Tìm đồng nghĩa</button>
+      </form>
+      <div id="synonymsStatus" class="status"></div>
+      <div id="synonymsResult" class="result"></div>
+
+      <h2 class="list-title">Danh sách đã lưu</h2>
+      <ul id="synonymsList" class="item-list"></ul>
+    </section>
+  </main>
+
+  <script src="js/storage.js"></script>
+  <script src="js/api.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

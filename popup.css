@@ -1,0 +1,296 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 380px;
+  max-height: 560px;
+  overflow-y: auto;
+  margin: 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  color: #1f2937;
+  background: #f9fafb;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #2563eb;
+  color: white;
+}
+
+.app-header h1 {
+  font-size: 16px;
+  margin: 0;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+  background: white;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px 4px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: #6b7280;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.tab-btn.active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+  font-weight: 600;
+}
+
+main {
+  padding: 12px 16px 20px;
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+.tab-desc {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 4px 0 8px;
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.input-row input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  min-width: 0;
+}
+
+.compare-row {
+  flex-wrap: wrap;
+}
+
+.compare-row input {
+  flex: 1 1 45%;
+}
+
+.compare-row button {
+  flex: 1 1 100%;
+}
+
+.input-row button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.input-row button:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
+
+.status {
+  min-height: 18px;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.status.error {
+  color: #dc2626;
+}
+
+.status.loading {
+  color: #6b7280;
+}
+
+.result {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  display: none;
+}
+
+.result.visible {
+  display: block;
+}
+
+.result h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.synonym-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 8px;
+  margin-top: 8px;
+}
+
+.synonym-item .synonym-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.synonym-item .word-type-tag {
+  font-size: 11px;
+  font-weight: 500;
+  color: #2563eb;
+  background: #eff6ff;
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.synonym-item .ipa {
+  font-weight: 400;
+  color: #2563eb;
+}
+
+.synonym-item p {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.speak-btn {
+  border: none;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 999px;
+  width: 26px;
+  height: 26px;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.speak-btn:hover {
+  background: #dbeafe;
+}
+
+.speak-btn-sm {
+  width: 22px;
+  height: 22px;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.result .ipa {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.result p {
+  margin: 6px 0;
+  line-height: 1.4;
+}
+
+.result .confusable {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed #e5e7eb;
+}
+
+.result .confusable-item {
+  font-size: 12.5px;
+  margin: 3px 0;
+}
+
+.result .etymology-note {
+  font-size: 12px;
+  color: #92400e;
+  background: #fef3c7;
+  border-radius: 4px;
+  padding: 4px 6px;
+  margin-top: 6px;
+}
+
+.list-title {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 4px 0 6px;
+}
+
+.item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.item-list li {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.item-list .item-sub {
+  flex: 1;
+}
+
+.item-list li:hover {
+  border-color: #2563eb;
+}
+
+.item-list .item-word {
+  font-weight: 600;
+}
+
+.item-list .item-sub {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.empty-hint {
+  color: #9ca3af;
+  font-size: 12px;
+  padding: 4px 0;
+}
