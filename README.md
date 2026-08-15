@@ -1,0 +1,68 @@
+# 🇬🇧 Learn English - Chrome Extension Hỗ Trợ Học Tiếng Anh Với Gemini AI
+
+**Learn English** là một tiện ích mở rộng (Chrome Extension) hỗ trợ học tiếng Anh thông minh dành cho người Việt, tích hợp AI (Google Gemini API) để giúp tra cứu phát âm IPA, giải nghĩa cụm từ, so sánh từ đồng nghĩa và hướng dẫn sử dụng từ theo đúng ngữ cảnh.
+
+---
+
+## ✨ Tính Năng Nổi Bật
+
+- 🗣️ **Tra cứu phát âm IPA chuẩn Anh - Mỹ**: Cung cấp phiên âm IPA, mô tả chi tiết vị trí lưỡi/môi/hơi để đọc đúng và cảnh báo các từ dễ gây nhầm lẫn.
+- 📖 **Giải nghĩa cụm từ (Phrasal Verbs & Idioms)**: Phân tích nghĩa đen từng từ, nghĩa thực tế và cung cấp cách liên tưởng hình ảnh/logic giúp ghi nhớ lâu.
+- 💡 **Cách dùng từ theo ngữ cảnh**: Giải thích ngữ cảnh nên sử dụng kèm ví dụ minh họa và các ghi chú về sắc thái (trang trọng/thân mật/chuyên ngành).
+- ⚖️ **So sánh từ gần nghĩa**: Phân biệt điểm khác biệt giữa 2 từ gần nghĩa (ví dụ: `search` vs `seek`), hướng dẫn khi nào nên dùng từ A thay vì từ B.
+- 🔍 **Tìm từ đồng nghĩa**: Tìm kiếm các từ đồng nghĩa kèm phiên âm IPA, từ loại và giải thích ngữ cảnh phân biệt.
+- 🔊 **Phát âm âm thanh**: Tích hợp công nghệ Speech Synthesis giúp nghe âm thanh đọc mẫu.
+
+---
+
+## 🚀 Hướng Dẫn Cài Đặt Tiện Ích Vào Trình Duyệt
+
+Tiện ích hỗ trợ tất cả các trình duyệt chạy nhân Chromium như **Google Chrome**, **Microsoft Edge**, **Brave**, **Cốc Cốc**,...
+
+### Bước 1: Tải mã nguồn tiện ích
+Bạn có thể chọn 1 trong 2 cách sau:
+- **Cách A (Dùng Git):** Mở Terminal/Command Prompt và chạy lệnh:
+  ```bash
+  git clone https://github.com/tientho201/Learn-English.git
+  ```
+- **Cách B (Tải file ZIP):** 
+  1. Truy cập trang GitHub repository: [https://github.com/tientho201/Learn-English](https://github.com/tientho201/Learn-English)
+  2. Bấm vào nút **Code** ➔ Chọn **Download ZIP**.
+  3. Giải nén file ZIP vừa tải về vào một thư mục trên máy tính.
+
+### Bước 2: Thêm tiện ích vào trình duyệt
+1. Mở trình duyệt Chrome (hoặc Edge, Brave, Cốc Cốc,...).
+2. Truy cập vào trang quản lý tiện ích bằng cách nhập đường dẫn sau lên thanh địa chỉ:
+   - Đối với **Chrome / Brave / Cốc Cốc**: `chrome://extensions/`
+   - Đối với **Microsoft Edge**: `edge://extensions/`
+3. Bật **Chế độ dành cho nhà phát triển (Developer mode)** ở góc trên bên phải màn hình.
+4. Nhấn nút **Tải tiện ích đã giải nén (Load unpacked)** ở góc trên bên trái.
+5. Chọn thư mục `Learn-English` mà bạn đã tải/giải nén ở Bước 1.
+
+🎉 *Chúc mừng! Tiện ích **Learn English** đã được thêm vào trình duyệt thành công.*
+
+---
+
+## ⚙️ Cấu Hình Gemini API Key
+
+Để tiện ích có thể gọi Google Gemini AI phản hồi, bạn cần cấu hình API Key (miễn phí):
+
+1. Truy cập vào [Google AI Studio (aistudio.google.com)](https://aistudio.google.com/).
+2. Đăng nhập tài khoản Google và nhấn nút **Get API key** ➔ **Create API key**.
+3. Sao chép (Copy) đoạn mã API Key vừa tạo (có dạng `AIzaSy...`).
+4. Trên trình duyệt, bấm vào biểu tượng tiện ích **Learn English** ➔ Chọn icon **Tùy chọn ⚙️** (hoặc nhấp chuột phải vào biểu tượng tiện ích chọn **Tùy chọn / Options**).
+5. Dán API Key vào ô **Google Gemini API Key** và bấm **Lưu**.
+
+---
+
+## 🛠️ Công Nghệ Sử Dụng
+
+- **Manifest V3** - Tiêu chuẩn Chrome Extension mới nhất.
+- **HTML5 / Vanilla CSS / JavaScript (ES6+)** - Giao diện hiện đại, tối ưu và siêu nhẹ.
+- **Google Gemini REST API** (`generativelanguage.googleapis.com`) - Xử lý thông minh và phản hồi dữ liệu JSON chuẩn hóa.
+
+---
+
+## 📄 Giấy Phép (License)
+
+Dự án phát triển mã nguồn mở phục vụ mục đích học tập và chia sẻ cộng đồng.
