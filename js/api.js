@@ -69,9 +69,27 @@ Schema khi task = "synonyms":
   ]
 }`;
 
+async function fetchWithTimeout(url, options = {}, timeoutMs = 30000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    return response;
+  } catch (err) {
+    if (err.name === "AbortError") {
+      throw new Error("Yêu cầu quá thời gian chờ (30 giây). Vui lòng kiểm tra lại kết nối mạng.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 const Api = {
-  async callTask(userPayload) {
-    const { apiKey, model } = await Storage.getSettings();
+  async callGemini(userPayload, apiKey, model) {
     if (!apiKey) {
       throw new Error("Chưa cấu hình Gemini API key. Mở phần Tùy chọn của tiện ích để thêm key.");
     }
@@ -79,7 +97,7 @@ const Api = {
     const selectedModel = (model || Storage.DEFAULT_MODEL).trim().replace(/^models\//, "");
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
 
-    const response = await fetch(url, {
+    const response = await fetchWithTimeout(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -104,10 +122,14 @@ const Api = {
       let errMsg = `Gemini API lỗi (${response.status})`;
       try {
         const errJson = JSON.parse(errBody);
-        if (errJson.error?.message) {
+        if (response.status === 400 || response.status === 403) {
+          errMsg = `Gemini API key không hợp lệ hoặc không có quyền truy cập (${response.status}): ${errJson.error?.message || ""}`;
+        } else if (response.status === 404) {
+          errMsg = `Model Gemini '${selectedModel}' không tồn tại hoặc chưa hỗ trợ v1beta (404).`;
+        } else if (response.status === 429) {
+          errMsg = `Gemini API báo hết hạn mức (Quota) hoặc gửi yêu cầu quá nhanh (429).`;
+        } else if (errJson.error?.message) {
           errMsg += `: ${errJson.error.message}`;
-        } else {
-          errMsg += `: ${errBody}`;
         }
       } catch (e) {
         errMsg += `: ${errBody}`;
@@ -116,13 +138,91 @@ const Api = {
     }
 
     const data = await response.json();
-    let content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const candidate = data.candidates?.[0];
+    if (candidate?.finishReason === "SAFETY") {
+      throw new Error("Yêu cầu bị chặn bởi bộ lọc an toàn của Gemini (Safety Filter).");
+    }
+
+    let content = candidate?.content?.parts?.[0]?.text;
     if (!content) {
       throw new Error("Không nhận được nội dung phản hồi từ Gemini API.");
     }
 
     content = content.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
     return JSON.parse(content);
+  },
+
+  async callOpenAI(userPayload, apiKey, model) {
+    if (!apiKey) {
+      throw new Error("Chưa cấu hình OpenAI API key. Mở phần Tùy chọn của tiện ích để thêm key.");
+    }
+
+    const selectedModel = (model || Storage.DEFAULT_OPENAI_MODEL).trim();
+    const url = "https://api.openai.com/v1/chat/completions";
+
+    const response = await fetchWithTimeout(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: selectedModel,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: JSON.stringify(userPayload) },
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.3,
+      }),
+    });
+
+    if (!response.ok) {
+      const errBody = await response.text();
+      let errMsg = `OpenAI API lỗi (${response.status})`;
+      try {
+        const errJson = JSON.parse(errBody);
+        if (response.status === 401) {
+          errMsg = `OpenAI API key không hợp lệ hoặc đã hết hạn (401).`;
+        } else if (response.status === 429) {
+          errMsg = `OpenAI API báo hết hạn mức (Quota Exceeded) hoặc gửi yêu cầu quá nhanh (429).`;
+        } else if (response.status === 404) {
+          errMsg = `Model OpenAI '${selectedModel}' không tồn tại hoặc tài khoản không có quyền truy cập (404).`;
+        } else if (errJson.error?.message) {
+          errMsg += `: ${errJson.error.message}`;
+        }
+      } catch (e) {
+        errMsg += `: ${errBody}`;
+      }
+      throw new Error(errMsg);
+    }
+
+    const data = await response.json();
+    let content = data.choices?.[0]?.message?.content;
+    if (!content) {
+      throw new Error("Không nhận được nội dung phản hồi từ OpenAI API.");
+    }
+
+    content = content.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+    return JSON.parse(content);
+  },
+
+  async testConnection(provider, apiKey, model) {
+    const testPayload = { task: "pronunciation", new_word: "hello", existing_words: [] };
+    if (provider === "openai") {
+      return await Api.callOpenAI(testPayload, apiKey, model);
+    } else {
+      return await Api.callGemini(testPayload, apiKey, model);
+    }
+  },
+
+  async callTask(userPayload) {
+    const settings = await Storage.getSettings();
+    if (settings.provider === "openai") {
+      return Api.callOpenAI(userPayload, settings.openaiApiKey, settings.openaiModel);
+    } else {
+      return Api.callGemini(userPayload, settings.apiKey, settings.model);
+    }
   },
 
   async getPronunciation(newWord, existingWords) {
@@ -160,5 +260,66 @@ const Api = {
       task: "synonyms",
       word,
     });
+  },
+
+  async translateGoogle(text, sl = "auto", tl = "vi") {
+    const trimmed = (text || "").trim();
+    if (!trimmed) {
+      throw new Error("Vui lòng nhập từ hoặc câu cần dịch.");
+    }
+
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(sl)}&tl=${encodeURIComponent(tl)}&dt=t&dt=bd&dt=rm&q=${encodeURIComponent(trimmed)}`;
+
+    const response = await fetchWithTimeout(url, {}, 15000);
+    if (!response.ok) {
+      throw new Error(`Google Dịch lỗi (${response.status})`);
+    }
+
+    const data = await response.json();
+
+    let translatedText = "";
+    let phonetic = "";
+    if (Array.isArray(data[0])) {
+      for (const item of data[0]) {
+        if (item[0]) {
+          translatedText += item[0];
+        }
+        if (item[3]) {
+          phonetic = item[3];
+        } else if (item[2] && !phonetic && typeof item[2] === "string") {
+          phonetic = item[2];
+        }
+      }
+    }
+
+    const dict = [];
+    if (Array.isArray(data[1])) {
+      for (const group of data[1]) {
+        const pos = group[0];
+        const terms = Array.isArray(group[1]) ? group[1] : [];
+        const details = Array.isArray(group[2])
+          ? group[2].map((entry) => ({
+              meaning: entry[0],
+              reverseTranslations: Array.isArray(entry[1]) ? entry[1] : [],
+            }))
+          : [];
+        dict.push({
+          pos,
+          terms,
+          details,
+        });
+      }
+    }
+
+    const detectedSource = data[2] || (sl === "auto" ? "en" : sl);
+
+    return {
+      sourceText: trimmed,
+      translatedText,
+      phonetic,
+      dict,
+      sourceLang: detectedSource,
+      targetLang: tl,
+    };
   },
 };

@@ -3,23 +3,75 @@ function $(id) {
 }
 
 function setStatus(el, message, kind) {
-  el.textContent = message || "";
   el.className = "status" + (kind ? ` ${kind}` : "");
+  el.innerHTML = "";
+  if (!message) return;
+
+  const textSpan = document.createElement("span");
+  textSpan.textContent = message;
+  el.appendChild(textSpan);
+
+  if (message.includes("Tùy chọn") || message.includes("Chưa cấu hình")) {
+    const link = document.createElement("button");
+    link.type = "button";
+    link.className = "status-link";
+    link.textContent = " [Mở Cài Đặt]";
+    link.addEventListener("click", () => chrome.runtime.openOptionsPage());
+    el.appendChild(link);
+  }
 }
 
 function escapeHtml(str) {
-  const div = document.createElement("div");
-  div.textContent = str ?? "";
-  return div.innerHTML;
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
-function speak(text) {
+let currentUtterance = null;
+
+function speak(text, lang = "en-US") {
   if (!("speechSynthesis" in window)) return;
   speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "en-US";
-  speechSynthesis.speak(utterance);
+  currentUtterance = new SpeechSynthesisUtterance(text);
+  currentUtterance.lang = lang || "en-US";
+  currentUtterance.onend = () => {
+    currentUtterance = null;
+  };
+  currentUtterance.onerror = () => {
+    currentUtterance = null;
+  };
+  speechSynthesis.speak(currentUtterance);
 }
+
+const LANG_TO_BCP47 = {
+  en: "en-US",
+  vi: "vi-VN",
+  ja: "ja-JP",
+  ko: "ko-KR",
+  "zh-CN": "zh-CN",
+  fr: "fr-FR",
+  de: "de-DE",
+  es: "es-ES",
+  ru: "ru-RU",
+};
+
+const POS_LABELS = {
+  noun: "Danh từ (noun)",
+  verb: "Động từ (verb)",
+  adjective: "Tính từ (adjective)",
+  adverb: "Trạng từ / Phó từ (adverb)",
+  pronoun: "Đại từ (pronoun)",
+  preposition: "Giới từ (preposition)",
+  conjunction: "Liên từ (conjunction)",
+  interjection: "Thán từ (interjection)",
+  prefix: "Tiền tố (prefix)",
+  suffix: "Hậu tố (suffix)",
+  abbreviation: "Từ viết tắt (abbreviation)",
+  phrase: "Cụm từ (phrase)",
+};
 
 // ---- Tabs ----
 document.querySelectorAll(".tab-btn").forEach((btn) => {
@@ -33,6 +85,187 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
 
 $("openOptions").addEventListener("click", () => {
   chrome.runtime.openOptionsPage();
+});
+
+// ---- Google Translate Tab ----
+function renderTranslateResult(data) {
+  const el = $("translateResult");
+  const targetLangCode = LANG_TO_BCP47[data.targetLang] || "vi-VN";
+
+  let dictHtml = "";
+  if (data.dict && data.dict.length > 0) {
+    dictHtml = `
+      <div class="dict-box">
+        <div class="dict-title">📖 Các nghĩa khác & từ điển</div>
+        ${data.dict
+          .map(
+            (group) => `
+          <div class="dict-pos-group">
+            <span class="dict-pos-name">${escapeHtml(POS_LABELS[group.pos] || group.pos)}</span>
+            ${(group.details || [])
+              .slice(0, 6)
+              .map(
+                (d) => `
+              <div class="dict-entry-item">
+                <span class="dict-entry-meaning">${escapeHtml(d.meaning)}</span>
+                ${
+                  d.reverseTranslations && d.reverseTranslations.length > 0
+                    ? `<div class="dict-entry-synonyms">Các từ liên quan: ${d.reverseTranslations
+                        .slice(0, 4)
+                        .map((r) => escapeHtml(r))
+                        .join(", ")}</div>`
+                    : ""
+                }
+              </div>`
+              )
+              .join("")}
+          </div>`
+          )
+          .join("")}
+      </div>`;
+  }
+
+  const sourceLangCode = LANG_TO_BCP47[data.sourceLang] || "en-US";
+
+  const phoneticHtml = data.phonetic
+    ? `<div class="translate-phonetic-row">
+        <span class="translate-phonetic">/${escapeHtml(data.phonetic)}/</span>
+        <button type="button" class="speak-btn speak-btn-sm speak-source-btn" title="Nghe phát âm nguồn: ${escapeHtml(data.sourceText)}">🔊</button>
+      </div>`
+    : `<div class="translate-phonetic-row">
+        <span class="translate-phonetic" style="color:#6b7280;font-style:normal;">(${escapeHtml(data.sourceText)})</span>
+        <button type="button" class="speak-btn speak-btn-sm speak-source-btn" title="Nghe phát âm nguồn: ${escapeHtml(data.sourceText)}">🔊</button>
+      </div>`;
+
+  el.innerHTML = `
+    <div class="translate-card-header">
+      <div>
+        <div class="translated-text">${escapeHtml(data.translatedText)}</div>
+        ${phoneticHtml}
+      </div>
+      <div class="translate-actions">
+        <button type="button" class="action-icon-btn speak-target-btn" title="Nghe bản dịch">🔊</button>
+        <button type="button" class="action-icon-btn copy-btn" title="Sao chép bản dịch">📋</button>
+      </div>
+    </div>
+    ${dictHtml}
+  `;
+  el.classList.add("visible");
+
+  const speakSourceBtn = el.querySelector(".speak-source-btn");
+  if (speakSourceBtn) {
+    speakSourceBtn.addEventListener("click", () => {
+      speak(data.sourceText, sourceLangCode);
+    });
+  }
+
+  const speakTargetBtn = el.querySelector(".speak-target-btn");
+  if (speakTargetBtn) {
+    speakTargetBtn.addEventListener("click", () => {
+      speak(data.translatedText, targetLangCode);
+    });
+  }
+
+  const copyBtn = el.querySelector(".copy-btn");
+  copyBtn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(data.translatedText);
+      copyBtn.textContent = "✓";
+      setTimeout(() => (copyBtn.textContent = "📋"), 1500);
+    } catch (err) {
+      console.error("Clipboard copy failed:", err);
+    }
+  });
+}
+
+async function renderTranslateList() {
+  const list = $("translateList");
+  const translations = await Storage.getTranslations();
+  if (translations.length === 0) {
+    list.innerHTML = `<li class="empty-hint" style="cursor:default;border:none;background:none;padding:2px 0;">Chưa có bản dịch nào được lưu.</li>`;
+    return;
+  }
+  list.innerHTML = translations
+    .map(
+      (t, i) => `
+      <li data-index="${i}">
+        <span class="item-word">${escapeHtml(t.sourceText)}</span>
+        <span class="item-sub">➔ ${escapeHtml(t.translatedText)}</span>
+        <button type="button" class="delete-btn" title="Xóa bản dịch này">✕</button>
+      </li>`
+    )
+    .join("");
+
+  list.querySelectorAll("li[data-index]").forEach((li) => {
+    li.addEventListener("click", () => {
+      const t = translations[Number(li.dataset.index)];
+      if (t) {
+        renderTranslateResult(t);
+        $("translateInput").value = t.sourceText;
+        $("translateClearBtn").style.display = "block";
+        if (t.sourceLang) $("translateSl").value = t.sourceLang;
+        if (t.targetLang) $("translateTl").value = t.targetLang;
+      }
+    });
+    li.querySelector(".delete-btn").addEventListener("click", async (e) => {
+      e.stopPropagation();
+      await Storage.deleteTranslation(li.dataset.index);
+      await renderTranslateList();
+    });
+  });
+}
+
+// Translate Controls
+const translateInput = $("translateInput");
+const translateClearBtn = $("translateClearBtn");
+
+translateInput.addEventListener("input", () => {
+  translateClearBtn.style.display = translateInput.value ? "block" : "none";
+});
+
+translateClearBtn.addEventListener("click", () => {
+  translateInput.value = "";
+  translateClearBtn.style.display = "none";
+  translateInput.focus();
+});
+
+$("translateSwapBtn").addEventListener("click", () => {
+  const sl = $("translateSl");
+  const tl = $("translateTl");
+  let from = sl.value;
+  let to = tl.value;
+  if (from === "auto") {
+    from = "en";
+  }
+  sl.value = to;
+  tl.value = from;
+});
+
+$("translateForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const text = translateInput.value.trim();
+  if (!text) return;
+
+  const sl = $("translateSl").value;
+  const tl = $("translateTl").value;
+  const statusEl = $("translateStatus");
+  const submitBtn = $("translateSubmitBtn");
+
+  $("translateResult").classList.remove("visible");
+  setStatus(statusEl, "Đang dịch bằng Google Dịch...", "loading");
+  submitBtn.disabled = true;
+
+  try {
+    const data = await Api.translateGoogle(text, sl, tl);
+    renderTranslateResult(data);
+    await Storage.addTranslation(data);
+    await renderTranslateList();
+    setStatus(statusEl, "");
+  } catch (err) {
+    setStatus(statusEl, err.message, "error");
+  } finally {
+    submitBtn.disabled = false;
+  }
 });
 
 // ---- Pronunciation tab ----
@@ -58,7 +291,7 @@ function renderPronunciationResult(data) {
     }
   `;
   el.classList.add("visible");
-  el.querySelector(".speak-btn").addEventListener("click", () => speak(data.word));
+  el.querySelector(".speak-btn").addEventListener("click", () => speak(data.word, "en-US"));
 }
 
 async function renderWordList() {
@@ -75,18 +308,24 @@ async function renderWordList() {
         <span class="item-word">${escapeHtml(w.word)}</span>
         <span class="item-sub">${escapeHtml(w.ipa)}</span>
         <button type="button" class="speak-btn speak-btn-sm" title="Nghe phát âm">🔊</button>
+        <button type="button" class="delete-btn" title="Xóa từ này">✕</button>
       </li>`
     )
     .join("");
 
   list.querySelectorAll("li[data-word]").forEach((li) => {
     li.addEventListener("click", () => {
-      const w = words.find((x) => x.word === li.dataset.word);
+      const w = words.find((x) => (x.word || "").toLowerCase() === li.dataset.word.toLowerCase());
       if (w) renderPronunciationResult(w);
     });
     li.querySelector(".speak-btn").addEventListener("click", (e) => {
       e.stopPropagation();
-      speak(li.dataset.word);
+      speak(li.dataset.word, "en-US");
+    });
+    li.querySelector(".delete-btn").addEventListener("click", async (e) => {
+      e.stopPropagation();
+      await Storage.deleteWord(li.dataset.word);
+      await renderWordList();
     });
   });
 }
@@ -148,14 +387,20 @@ async function renderPhraseList() {
       <li data-phrase="${escapeHtml(p.phrase)}">
         <span class="item-word">${escapeHtml(p.phrase)}</span>
         <div class="item-sub">${escapeHtml(p.meaning)}</div>
+        <button type="button" class="delete-btn" title="Xóa cụm từ này">✕</button>
       </li>`
     )
     .join("");
 
   list.querySelectorAll("li[data-phrase]").forEach((li) => {
     li.addEventListener("click", () => {
-      const p = phrases.find((x) => x.phrase === li.dataset.phrase);
+      const p = phrases.find((x) => (x.phrase || "").toLowerCase() === li.dataset.phrase.toLowerCase());
       if (p) renderPhraseResult(p);
+    });
+    li.querySelector(".delete-btn").addEventListener("click", async (e) => {
+      e.stopPropagation();
+      await Storage.deletePhrase(li.dataset.phrase);
+      await renderPhraseList();
     });
   });
 }
@@ -209,7 +454,7 @@ function renderUsageResult(data) {
     ${data.notes ? `<div class="etymology-note">${escapeHtml(data.notes)}</div>` : ""}
   `;
   el.classList.add("visible");
-  el.querySelector(".speak-btn").addEventListener("click", () => speak(data.word));
+  el.querySelector(".speak-btn").addEventListener("click", () => speak(data.word, "en-US"));
 }
 
 async function renderUsageList() {
@@ -225,14 +470,20 @@ async function renderUsageList() {
       <li data-word="${escapeHtml(u.word)}">
         <span class="item-word">${escapeHtml(u.word)}</span>
         <span class="item-sub">${escapeHtml(u.meaning)}</span>
+        <button type="button" class="delete-btn" title="Xóa mục này">✕</button>
       </li>`
     )
     .join("");
 
   list.querySelectorAll("li[data-word]").forEach((li) => {
     li.addEventListener("click", () => {
-      const u = usages.find((x) => x.word === li.dataset.word);
+      const u = usages.find((x) => (x.word || "").toLowerCase() === li.dataset.word.toLowerCase());
       if (u) renderUsageResult(u);
+    });
+    li.querySelector(".delete-btn").addEventListener("click", async (e) => {
+      e.stopPropagation();
+      await Storage.deleteUsage(li.dataset.word);
+      await renderUsageList();
     });
   });
 }
@@ -287,7 +538,7 @@ function renderCompareResult(data) {
   `;
   el.classList.add("visible");
   el.querySelectorAll(".speak-btn").forEach((btn) => {
-    btn.addEventListener("click", () => speak(btn.dataset.word));
+    btn.addEventListener("click", () => speak(btn.dataset.word, "en-US"));
   });
 }
 
@@ -303,6 +554,7 @@ async function renderCompareList() {
       (c, i) => `
       <li data-index="${i}">
         <span class="item-word">${escapeHtml(c.word_a)} vs ${escapeHtml(c.word_b)}</span>
+        <button type="button" class="delete-btn" title="Xóa so sánh này">✕</button>
       </li>`
     )
     .join("");
@@ -311,6 +563,11 @@ async function renderCompareList() {
     li.addEventListener("click", () => {
       const c = comparisons[Number(li.dataset.index)];
       if (c) renderCompareResult(c);
+    });
+    li.querySelector(".delete-btn").addEventListener("click", async (e) => {
+      e.stopPropagation();
+      await Storage.deleteComparison(li.dataset.index);
+      await renderCompareList();
     });
   });
 }
@@ -373,9 +630,9 @@ function renderSynonymsResult(data) {
   `;
   el.classList.add("visible");
   el.querySelectorAll(".speak-btn[data-word]").forEach((btn) => {
-    btn.addEventListener("click", () => speak(btn.dataset.word));
+    btn.addEventListener("click", () => speak(btn.dataset.word, "en-US"));
   });
-  el.querySelector("h3 .speak-btn:not([data-word])").addEventListener("click", () => speak(data.word));
+  el.querySelector("h3 .speak-btn:not([data-word])").addEventListener("click", () => speak(data.word, "en-US"));
 }
 
 async function renderSynonymsList() {
@@ -390,15 +647,21 @@ async function renderSynonymsList() {
       (e) => `
       <li data-word="${escapeHtml(e.word)}">
         <span class="item-word">${escapeHtml(e.word)}</span>
-        <span class="item-sub">${(e.synonyms || []).map((s) => s.word).join(", ")}</span>
+        <span class="item-sub">${(e.synonyms || []).map((s) => escapeHtml(s.word)).join(", ")}</span>
+        <button type="button" class="delete-btn" title="Xóa mục này">✕</button>
       </li>`
     )
     .join("");
 
   list.querySelectorAll("li[data-word]").forEach((li) => {
     li.addEventListener("click", () => {
-      const e = entries.find((x) => x.word === li.dataset.word);
+      const e = entries.find((x) => (x.word || "").toLowerCase() === li.dataset.word.toLowerCase());
       if (e) renderSynonymsResult(e);
+    });
+    li.querySelector(".delete-btn").addEventListener("click", async (e) => {
+      e.stopPropagation();
+      await Storage.deleteSynonymEntry(li.dataset.word);
+      await renderSynonymsList();
     });
   });
 }
@@ -430,6 +693,7 @@ $("synonymsForm").addEventListener("submit", async (e) => {
 });
 
 // ---- Init ----
+renderTranslateList();
 renderWordList();
 renderPhraseList();
 renderUsageList();

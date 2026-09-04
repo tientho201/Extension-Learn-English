@@ -4,70 +4,163 @@
   <meta charset="UTF-8" />
   <title>Tùy chọn - Learn English</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
-      font-family: "Segoe UI", system-ui, sans-serif;
-      max-width: 480px;
-      margin: 40px auto;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      max-width: 540px;
+      margin: 32px auto;
+      padding: 0 16px;
       color: #1f2937;
+      background: #f9fafb;
     }
     h1 {
-      font-size: 18px;
+      font-size: 20px;
+      margin-bottom: 4px;
+      color: #111827;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 20px;
+    }
+    .section-card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+    .section-card h2 {
+      margin: 0 0 12px 0;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #1f2937;
     }
     label {
       display: block;
-      margin-top: 16px;
+      margin-top: 12px;
       font-size: 13px;
       font-weight: 600;
+      color: #374151;
     }
-    input, select {
+    input[type="text"],
+    input[type="password"] {
       width: 100%;
-      padding: 8px 10px;
-      margin-top: 6px;
+      padding: 9px 12px;
+      margin-top: 5px;
       border: 1px solid #d1d5db;
       border-radius: 6px;
-      font-size: 14px;
-      box-sizing: border-box;
+      font-size: 13.5px;
+      outline: none;
+      transition: border-color 0.15s;
     }
-    button {
-      margin-top: 20px;
-      padding: 8px 16px;
-      background: #2563eb;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
     }
     .hint {
       font-size: 12px;
       color: #6b7280;
       margin-top: 4px;
+      line-height: 1.4;
     }
-    #saveStatus {
-      margin-left: 10px;
+    .btn-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    button {
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
       font-size: 13px;
+      font-weight: 500;
+      transition: background 0.15s, opacity 0.15s;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 22px;
+      font-size: 14px;
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: #1d4ed8;
+    }
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background: #e5e7eb;
+    }
+    .test-status {
+      font-size: 12.5px;
+      line-height: 1.4;
+    }
+    .test-status.success {
       color: #16a34a;
     }
-    .guide-box {
-      background-color: #f3f4f6;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-top: 16px;
-      font-size: 13px;
-      line-height: 1.5;
+    .test-status.error {
+      color: #dc2626;
     }
-    .guide-box h2 {
-      margin: 0 0 8px 0;
-      font-size: 14px;
+    .test-status.loading {
+      color: #6b7280;
+    }
+    .checkbox-container {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      cursor: pointer;
+      margin: 4px 0 0;
+      font-size: 13.5px;
+      font-weight: 500;
       color: #1f2937;
     }
+    .checkbox-container input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      margin-top: 2px;
+    }
+    .active-badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 4px 10px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .guide-box {
+      background-color: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.5;
+    }
     .guide-box ol {
-      margin: 0;
-      padding-left: 20px;
+      margin: 4px 0 0;
+      padding-left: 18px;
     }
     .guide-box li {
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
     .guide-box a {
       color: #2563eb;
@@ -77,35 +170,91 @@
     .guide-box a:hover {
       text-decoration: underline;
     }
+    #saveStatus {
+      margin-left: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #16a34a;
+    }
   </style>
 </head>
 <body>
-  <h1>Tùy chọn - Learn English</h1>
-
-  <div class="guide-box">
-    <h2>📌 Hướng dẫn lấy Gemini API Key:</h2>
-    <ol>
-      <li>Truy cập <a href="https://aistudio.google.com/" target="_blank" rel="noopener">Google AI Studio (aistudio.google.com)</a>.</li>
-      <li>Đăng nhập tài khoản Google và chọn <strong>Get API key</strong> / <strong>Create API key</strong>.</li>
-      <li>Sao chép (copy) API key vừa tạo.</li>
-      <li>Dán vào ô <strong>Google Gemini API Key</strong> ở mục Cấu hình bên dưới rồi chọn <strong>Lưu</strong> để bắt đầu sử dụng.</li>
-    </ol>
-  </div>
+  <h1>Cài đặt - Learn English</h1>
+  <div class="subtitle">Quản lý cấu hình API và lựa chọn mô hình AI hỗ trợ học tiếng Anh.</div>
 
   <form id="settingsForm">
-    <label for="apiKey">Google Gemini API Key</label>
-    <input type="password" id="apiKey" placeholder="Nhập Gemini API Key (AIzaSy...)" autocomplete="off" required />
-    <div class="hint">Key được lưu trong chrome.storage.sync, chỉ dùng để gọi trực tiếp Google Gemini API từ trình duyệt của bạn.</div>
+    <!-- Chọn Model / Provider hoạt động -->
+    <div class="section-card">
+      <h2>⚙️ Lựa chọn Mô hình AI</h2>
+      <label class="checkbox-container">
+        <input type="checkbox" id="useOpenAiCheckbox" />
+        <span>Sử dụng <strong>OpenAI</strong> làm AI xử lý chính</span>
+      </label>
+      <div class="hint" style="margin-left: 28px;">
+        Tích chọn để sử dụng OpenAI (ChatGPT). Bỏ tích để sử dụng Google Gemini.
+      </div>
+      <div id="activeProviderBadge" class="active-badge">Đang dùng: ♊ Google Gemini</div>
+    </div>
 
-    <label for="model">Model Gemini</label>
-    <input type="text" id="model" placeholder="gemini-3.5-flash-lite" />
-    <div class="hint">Mặc định: <code>gemini-3.5-flash-lite</code> (Gợi ý: <code>gemini-3.5-flash-lite</code>, <code>gemini-2.5-flash</code>, <code>gemini-2.0-flash</code>, <code>gemini-1.5-flash</code>)</div>
+    <!-- Cấu hình Google Gemini -->
+    <div class="section-card">
+      <h2>♊ Cấu hình Google Gemini</h2>
+      <div class="guide-box">
+        <strong>Cách lấy Gemini API Key (Miễn phí):</strong>
+        <ol>
+          <li>Truy cập <a href="https://aistudio.google.com/" target="_blank" rel="noopener">Google AI Studio</a>.</li>
+          <li>Chọn <strong>Get API key</strong> ➔ <strong>Create API key</strong> và copy key.</li>
+        </ol>
+      </div>
 
-    <button type="submit">Lưu</button>
-    <span id="saveStatus"></span>
+      <label for="apiKey">Gemini API Key</label>
+      <input type="password" id="apiKey" placeholder="Nhập Gemini API Key (AIzaSy...)" autocomplete="off" />
+      <div class="hint">Lưu trong chrome.storage.sync, chỉ gọi trực tiếp từ trình duyệt của bạn.</div>
+
+      <label for="model">Tên Model Gemini</label>
+      <input type="text" id="model" placeholder="gemini-3.1-flash-lite" />
+      <div class="hint">Mặc định: <code>gemini-3.1-flash-lite</code></div>
+
+      <div class="btn-row">
+        <button type="button" id="testGeminiBtn" class="btn-secondary">Kiểm tra kết nối Gemini</button>
+        <span id="geminiTestStatus" class="test-status"></span>
+      </div>
+    </div>
+
+    <!-- Cấu hình OpenAI -->
+    <div class="section-card">
+      <h2>🤖 Cấu hình OpenAI</h2>
+      <div class="guide-box">
+        <strong>Cách lấy OpenAI API Key:</strong>
+        <ol>
+          <li>Truy cập <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">OpenAI API Keys</a>.</li>
+          <li>Đăng nhập và chọn <strong>Create new secret key</strong>.</li>
+        </ol>
+      </div>
+
+      <label for="openaiApiKey">OpenAI API Key</label>
+      <input type="password" id="openaiApiKey" placeholder="Nhập OpenAI API Key (sk-proj-...)" autocomplete="off" />
+      <div class="hint">Key được lưu an toàn trong tiện ích của bạn.</div>
+
+      <label for="openaiModel">Tên Model OpenAI</label>
+      <input type="text" id="openaiModel" placeholder="gpt-4o-mini" />
+      <div class="hint">Mặc định: <code>gpt-4o-mini</code> (Gợi ý: <code>gpt-4o-mini</code>, <code>gpt-4o</code>).</div>
+
+      <div class="btn-row">
+        <button type="button" id="testOpenaiBtn" class="btn-secondary">Kiểm tra kết nối OpenAI</button>
+        <span id="openaiTestStatus" class="test-status"></span>
+      </div>
+    </div>
+
+    <!-- Nút lưu cài đặt -->
+    <div style="margin-top: 20px; display: flex; align-items: center;">
+      <button type="submit" class="btn-primary">Lưu cài đặt</button>
+      <span id="saveStatus"></span>
+    </div>
   </form>
 
   <script src="js/storage.js"></script>
+  <script src="js/api.js"></script>
   <script src="options.js"></script>
 </body>
 </html>

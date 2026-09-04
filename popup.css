@@ -40,11 +40,17 @@ body {
   display: flex;
   border-bottom: 1px solid #e5e7eb;
   background: white;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .tab-btn {
-  flex: 1;
-  padding: 10px 4px;
+  flex: 1 0 auto;
+  padding: 10px 8px;
   border: none;
   background: none;
   cursor: pointer;
@@ -293,4 +299,248 @@ main {
   color: #9ca3af;
   font-size: 12px;
   padding: 4px 0;
+}
+
+.delete-btn {
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  border-radius: 4px;
+  width: 22px;
+  height: 22px;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.delete-btn:hover {
+  color: #ef4444;
+  background: #fee2e2;
+}
+
+.status-link {
+  color: #2563eb;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 600;
+  margin-left: 4px;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* ---- Translate Tab Styles ---- */
+.lang-selector-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.lang-select {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 12.5px;
+  background: white;
+  color: #1f2937;
+  outline: none;
+  cursor: pointer;
+}
+
+.lang-select:focus {
+  border-color: #2563eb;
+}
+
+.swap-btn {
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #4b5563;
+  border-radius: 6px;
+  width: 32px;
+  height: 31px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 15px;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.swap-btn:hover {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #93c5fd;
+}
+
+.translate-input-wrapper {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.translate-textarea {
+  width: 100%;
+  padding: 8px 28px 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13.5px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 66px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.translate-textarea:focus {
+  border-color: #2563eb;
+}
+
+.clear-input-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 3px 5px;
+  border-radius: 4px;
+  display: none;
+}
+
+.clear-input-btn:hover {
+  color: #ef4444;
+}
+
+.translate-submit-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.primary-btn {
+  padding: 7px 18px;
+  border: none;
+  border-radius: 6px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.primary-btn:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
+
+.translate-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.translated-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.translate-phonetic {
+  font-size: 12.5px;
+  color: #2563eb;
+  margin: 0;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.translate-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.action-icon-btn {
+  border: none;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.15s;
+}
+
+.action-icon-btn:hover {
+  background: #dbeafe;
+}
+
+.dict-box {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.dict-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.dict-pos-group {
+  margin-bottom: 10px;
+}
+
+.dict-pos-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #1d4ed8;
+  background: #eff6ff;
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 4px;
+  margin-bottom: 5px;
+}
+
+.dict-entry-item {
+  font-size: 13px;
+  padding: 4px 0;
+  border-bottom: 1px dashed #f3f4f6;
+  line-height: 1.4;
+}
+
+.dict-entry-item:last-child {
+  border-bottom: none;
+}
+
+.dict-entry-meaning {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.dict-entry-synonyms {
+  font-size: 11.5px;
+  color: #6b7280;
+  margin-top: 1px;
 }

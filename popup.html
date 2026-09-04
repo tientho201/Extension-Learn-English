@@ -12,7 +12,8 @@
   </header>
 
   <nav class="tabs">
-    <button class="tab-btn active" data-tab="pronunciation">Phiên âm</button>
+    <button class="tab-btn active" data-tab="translate">Dịch</button>
+    <button class="tab-btn" data-tab="pronunciation">Phiên âm</button>
     <button class="tab-btn" data-tab="phrase">Từ ghép</button>
     <button class="tab-btn" data-tab="usage">Cách dùng</button>
     <button class="tab-btn" data-tab="compare">So sánh</button>
@@ -20,7 +21,58 @@
   </nav>
 
   <main>
-    <section id="tab-pronunciation" class="tab-panel active">
+    <section id="tab-translate" class="tab-panel active">
+      <div class="lang-selector-row">
+        <select id="translateSl" class="lang-select">
+          <option value="auto">Phát hiện ngôn ngữ</option>
+          <option value="en" selected>Tiếng Anh</option>
+          <option value="vi">Tiếng Việt</option>
+          <option value="ja">Tiếng Nhật</option>
+          <option value="ko">Tiếng Hàn</option>
+          <option value="zh-CN">Tiếng Trung</option>
+          <option value="fr">Tiếng Pháp</option>
+          <option value="de">Tiếng Đức</option>
+          <option value="es">Tiếng Tây Ban Nha</option>
+          <option value="ru">Tiếng Nga</option>
+        </select>
+        <button type="button" id="translateSwapBtn" class="swap-btn" title="Hoán đổi ngôn ngữ">⇄</button>
+        <select id="translateTl" class="lang-select">
+          <option value="vi" selected>Tiếng Việt</option>
+          <option value="en">Tiếng Anh</option>
+          <option value="ja">Tiếng Nhật</option>
+          <option value="ko">Tiếng Hàn</option>
+          <option value="zh-CN">Tiếng Trung</option>
+          <option value="fr">Tiếng Pháp</option>
+          <option value="de">Tiếng Đức</option>
+          <option value="es">Tiếng Tây Ban Nha</option>
+          <option value="ru">Tiếng Nga</option>
+        </select>
+      </div>
+
+      <form id="translateForm">
+        <div class="translate-input-wrapper">
+          <textarea
+            id="translateInput"
+            class="translate-textarea"
+            placeholder="Nhập từ hoặc văn bản cần dịch..."
+            rows="3"
+            required
+          ></textarea>
+          <button type="button" id="translateClearBtn" class="clear-input-btn" title="Xóa văn bản">✕</button>
+        </div>
+        <div class="translate-submit-row">
+          <button type="submit" id="translateSubmitBtn" class="primary-btn">Dịch</button>
+        </div>
+      </form>
+
+      <div id="translateStatus" class="status"></div>
+      <div id="translateResult" class="result"></div>
+
+      <h2 class="list-title">Lịch sử dịch đã lưu</h2>
+      <ul id="translateList" class="item-list"></ul>
+    </section>
+
+    <section id="tab-pronunciation" class="tab-panel">
       <form id="pronunciationForm" class="input-row">
         <input
           type="text"
