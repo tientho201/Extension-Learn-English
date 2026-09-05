@@ -183,4 +183,31 @@ const Storage = {
     await chrome.storage.local.set({ translations: filtered });
     return filtered;
   },
+
+  async getWordFamilies() {
+    const { wordFamilies = [] } = await chrome.storage.local.get(["wordFamilies"]);
+    return wordFamilies;
+  },
+
+  async addWordFamily(entry) {
+    const wordFamilies = await Storage.getWordFamilies();
+    const entryWord = (entry.word || entry.root_word || "").trim().toLowerCase();
+    const filtered = wordFamilies.filter(
+      (wf) => (wf.word || wf.root_word || "").trim().toLowerCase() !== entryWord
+    );
+    filtered.unshift(entry);
+    const sliced = filtered.slice(0, Storage.MAX_ITEMS);
+    await chrome.storage.local.set({ wordFamilies: sliced });
+    return sliced;
+  },
+
+  async deleteWordFamily(word) {
+    const wordFamilies = await Storage.getWordFamilies();
+    const target = (word || "").trim().toLowerCase();
+    const filtered = wordFamilies.filter(
+      (wf) => (wf.word || wf.root_word || "").trim().toLowerCase() !== target
+    );
+    await chrome.storage.local.set({ wordFamilies: filtered });
+    return filtered;
+  },
 };

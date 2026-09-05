@@ -12,12 +12,13 @@
   </header>
 
   <nav class="tabs">
-    <button class="tab-btn active" data-tab="translate">Dịch</button>
-    <button class="tab-btn" data-tab="pronunciation">Phiên âm</button>
-    <button class="tab-btn" data-tab="phrase">Từ ghép</button>
-    <button class="tab-btn" data-tab="usage">Cách dùng</button>
-    <button class="tab-btn" data-tab="compare">So sánh</button>
-    <button class="tab-btn" data-tab="synonyms">Đồng nghĩa</button>
+    <button class="tab-btn active" data-tab="translate" title="Phím tắt: Alt+1">Dịch</button>
+    <button class="tab-btn" data-tab="pronunciation" title="Phím tắt: Alt+2">Phiên âm</button>
+    <button class="tab-btn" data-tab="phrase" title="Phím tắt: Alt+3">Từ ghép</button>
+    <button class="tab-btn" data-tab="usage" title="Phím tắt: Alt+4">Cách dùng</button>
+    <button class="tab-btn" data-tab="compare" title="Phím tắt: Alt+5">So sánh</button>
+    <button class="tab-btn" data-tab="synonyms" title="Phím tắt: Alt+6">Đồng nghĩa</button>
+    <button class="tab-btn" data-tab="word-family" title="Phím tắt: Alt+7">Word Family</button>
   </nav>
 
   <main>
@@ -170,6 +171,25 @@
 
       <h2 class="list-title">Danh sách đã lưu</h2>
       <ul id="synonymsList" class="item-list"></ul>
+    </section>
+
+    <section id="tab-word-family" class="tab-panel">
+      <p class="tab-desc">Khám phá toàn bộ họ từ (Danh, Động, Tính, Trạng) và các Collocations phổ biến.</p>
+      <form id="wordFamilyForm" class="input-row">
+        <input
+          type="text"
+          id="wordFamilyInput"
+          placeholder="Nhập từ, ví dụ: create, success, decide"
+          autocomplete="off"
+          required
+        />
+        <button type="submit">Khám phá</button>
+      </form>
+      <div id="wordFamilyStatus" class="status"></div>
+      <div id="wordFamilyResult" class="result"></div>
+
+      <h2 class="list-title">Danh sách đã lưu</h2>
+      <ul id="wordFamilyList" class="item-list"></ul>
     </section>
   </main>
 

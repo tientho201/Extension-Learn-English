@@ -10,6 +10,8 @@ const SYSTEM_PROMPT = `Bạn là trợ lý hỗ trợ người Việt học phá
 
 - task = "synonyms": nhận một từ. Trả về từ loại của từ gốc, và danh sách các từ đồng nghĩa (3-6 từ) - mỗi từ đồng nghĩa gồm: từ loại, phiên âm IPA chuẩn Anh-Mỹ, và giải thích ngắn gọn nên dùng từ này trong trường hợp/ngữ cảnh cụ thể nào (khác biệt sắc thái so với từ gốc và so với các từ đồng nghĩa khác trong danh sách), kèm một câu ví dụ minh họa.
 
+- task = "word_family": nhận một từ bất kỳ. Xác định từ gốc (root_word) và tìm họ từ (word family) phân loại thành 4 nhóm từ loại: nouns (danh từ), verbs (động từ), adjectives (tính từ), adverbs (trạng từ). Mỗi từ có phiên âm IPA chuẩn Anh-Mỹ, nghĩa tiếng Việt ngắn gọn và một câu ví dụ minh họa. Ngoài ra, liệt kê danh sách collocations phổ biến (3-5 cụm từ/giới từ thường đi kèm) gồm cụm từ (phrase), nghĩa tiếng Việt và câu ví dụ minh họa.
+
 Luôn trả về JSON đúng schema tương ứng với task nhận được, không kèm câu giải thích, không bọc markdown code fence.
 
 Schema khi task = "pronunciation":
@@ -66,6 +68,30 @@ Schema khi task = "synonyms":
       "usage": string,
       "example": string
     }
+  ]
+}
+
+Schema khi task = "word_family":
+{
+  "task": "word_family",
+  "word": string,
+  "root_word": string,
+  "word_family": {
+    "nouns": [
+      { "word": string, "ipa": string, "meaning": string, "example": string }
+    ],
+    "verbs": [
+      { "word": string, "ipa": string, "meaning": string, "example": string }
+    ],
+    "adjectives": [
+      { "word": string, "ipa": string, "meaning": string, "example": string }
+    ],
+    "adverbs": [
+      { "word": string, "ipa": string, "meaning": string, "example": string }
+    ]
+  },
+  "collocations": [
+    { "phrase": string, "meaning": string, "example": string }
   ]
 }`;
 
@@ -321,5 +347,12 @@ const Api = {
       sourceLang: detectedSource,
       targetLang: tl,
     };
+  },
+
+  async getWordFamily(word) {
+    return Api.callTask({
+      task: "word_family",
+      word,
+    });
   },
 };

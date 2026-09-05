@@ -33,7 +33,7 @@ function escapeHtml(str) {
 let currentUtterance = null;
 
 function speak(text, lang = "en-US") {
-  if (!("speechSynthesis" in window)) return;
+  if (!("speechSynthesis" in window) || !text) return;
   speechSynthesis.cancel();
   currentUtterance = new SpeechSynthesisUtterance(text);
   currentUtterance.lang = lang || "en-US";
@@ -73,24 +73,87 @@ const POS_LABELS = {
   phrase: "Cụm từ (phrase)",
 };
 
-// ---- Tabs ----
+const TAB_ORDER = [
+  "translate",
+  "pronunciation",
+  "phrase",
+  "usage",
+  "compare",
+  "synonyms",
+  "word-family",
+];
+
+// ---- Tabs & Navigation ----
+function switchTab(tabName) {
+  const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+  const panel = $(`tab-${tabName}`);
+  if (!btn || !panel) return;
+
+  document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+  btn.classList.add("active");
+  panel.classList.add("active");
+
+  // Tự động focus vào ô nhập đầu tiên
+  const firstInput = panel.querySelector("input, textarea");
+  if (firstInput) {
+    firstInput.focus();
+    if (typeof firstInput.select === "function") firstInput.select();
+  }
+}
+
 document.querySelectorAll(".tab-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
-    document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
-    btn.classList.add("active");
-    $(`tab-${btn.dataset.tab}`).classList.add("active");
-  });
+  btn.addEventListener("click", () => switchTab(btn.dataset.tab));
 });
 
 $("openOptions").addEventListener("click", () => {
   chrome.runtime.openOptionsPage();
 });
 
+// ---- Global Keyboard Shortcuts ----
+document.addEventListener("keydown", (e) => {
+  // Alt + 1..7: Chuyển tab nhanh chóng
+  if (e.altKey && e.key >= "1" && e.key <= "7") {
+    e.preventDefault();
+    const index = parseInt(e.key, 10) - 1;
+    if (TAB_ORDER[index]) {
+      switchTab(TAB_ORDER[index]);
+    }
+    return;
+  }
+
+  // Alt + S: Phát âm kết quả hiện tại
+  if (e.altKey && (e.key === "s" || e.key === "S")) {
+    e.preventDefault();
+    const activePanel = document.querySelector(".tab-panel.active");
+    if (!activePanel) return;
+
+    const speakBtn = activePanel.querySelector(
+      ".result.visible .speak-source-btn, .result.visible .speak-btn, .result.visible .speak-target-btn"
+    );
+    if (speakBtn) {
+      speakBtn.click();
+    }
+    return;
+  }
+
+  // Escape: Xóa nhanh nội dung trong ô nhập đang focus
+  if (e.key === "Escape") {
+    const activeEl = document.activeElement;
+    if (activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA")) {
+      if (activeEl.value) {
+        activeEl.value = "";
+        activeEl.dispatchEvent(new Event("input"));
+      }
+    }
+  }
+});
+
 // ---- Google Translate Tab ----
 function renderTranslateResult(data) {
   const el = $("translateResult");
   const targetLangCode = LANG_TO_BCP47[data.targetLang] || "vi-VN";
+  const sourceLangCode = LANG_TO_BCP47[data.sourceLang] || "en-US";
 
   let dictHtml = "";
   if (data.dict && data.dict.length > 0) {
@@ -125,16 +188,14 @@ function renderTranslateResult(data) {
       </div>`;
   }
 
-  const sourceLangCode = LANG_TO_BCP47[data.sourceLang] || "en-US";
-
   const phoneticHtml = data.phonetic
     ? `<div class="translate-phonetic-row">
         <span class="translate-phonetic">/${escapeHtml(data.phonetic)}/</span>
-        <button type="button" class="speak-btn speak-btn-sm speak-source-btn" title="Nghe phát âm nguồn: ${escapeHtml(data.sourceText)}">🔊</button>
+        <button type="button" class="speak-btn speak-btn-sm speak-source-btn" title="Nghe phát âm nguồn (Alt+S)">🔊</button>
       </div>`
     : `<div class="translate-phonetic-row">
         <span class="translate-phonetic" style="color:#6b7280;font-style:normal;">(${escapeHtml(data.sourceText)})</span>
-        <button type="button" class="speak-btn speak-btn-sm speak-source-btn" title="Nghe phát âm nguồn: ${escapeHtml(data.sourceText)}">🔊</button>
+        <button type="button" class="speak-btn speak-btn-sm speak-source-btn" title="Nghe phát âm nguồn (Alt+S)">🔊</button>
       </div>`;
 
   el.innerHTML = `
@@ -229,6 +290,14 @@ translateClearBtn.addEventListener("click", () => {
   translateInput.focus();
 });
 
+// Phím tắt Enter hoặc Ctrl+Enter trong Textarea để dịch ngay
+translateInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && (e.ctrlKey || !e.shiftKey)) {
+    e.preventDefault();
+    $("translateForm").dispatchEvent(new Event("submit", { cancelable: true }));
+  }
+});
+
 $("translateSwapBtn").addEventListener("click", () => {
   const sl = $("translateSl");
   const tl = $("translateTl");
@@ -281,7 +350,7 @@ function renderPronunciationResult(data) {
     <h3>
       ${escapeHtml(data.word)}
       <span class="ipa">${escapeHtml(data.ipa)}</span>
-      <button type="button" class="speak-btn" title="Nghe phát âm">🔊</button>
+      <button type="button" class="speak-btn" title="Nghe phát âm (Alt+S)">🔊</button>
     </h3>
     <p>${escapeHtml(data.description)}</p>
     ${
@@ -447,7 +516,7 @@ function renderUsageResult(data) {
   el.innerHTML = `
     <h3>
       ${escapeHtml(data.word)}
-      <button type="button" class="speak-btn" title="Nghe phát âm">🔊</button>
+      <button type="button" class="speak-btn" title="Nghe phát âm (Alt+S)">🔊</button>
     </h3>
     <p>${escapeHtml(data.meaning)}</p>
     ${contexts ? `<div class="confusable">${contexts}</div>` : ""}
@@ -624,7 +693,7 @@ function renderSynonymsResult(data) {
     <h3>
       ${escapeHtml(data.word)}
       <span class="word-type-tag">${escapeHtml(data.word_type)}</span>
-      <button type="button" class="speak-btn" title="Nghe phát âm">🔊</button>
+      <button type="button" class="speak-btn" title="Nghe phát âm (Alt+S)">🔊</button>
     </h3>
     ${synonyms || `<div class="empty-hint">Không tìm được từ đồng nghĩa phù hợp.</div>`}
   `;
@@ -692,6 +761,142 @@ $("synonymsForm").addEventListener("submit", async (e) => {
   }
 });
 
+// ---- Word Family Tab ----
+function renderWordFamilyResult(data) {
+  const el = $("wordFamilyResult");
+  const family = data.word_family || {};
+  const categories = [
+    { key: "nouns", label: "Danh từ (Nouns)", badgeClass: "wf-badge-noun" },
+    { key: "verbs", label: "Động từ (Verbs)", badgeClass: "wf-badge-verb" },
+    { key: "adjectives", label: "Tính từ (Adjectives)", badgeClass: "wf-badge-adj" },
+    { key: "adverbs", label: "Trạng từ (Adverbs)", badgeClass: "wf-badge-adv" },
+  ];
+
+  let sectionsHtml = "";
+  for (const cat of categories) {
+    const items = family[cat.key] || [];
+    if (items.length > 0) {
+      sectionsHtml += `
+        <div class="wf-section">
+          <div class="wf-section-title">
+            <span class="${cat.badgeClass}">${cat.label}</span>
+          </div>
+          ${items
+            .map(
+              (item) => `
+            <div class="wf-item">
+              <div class="wf-head">
+                <span>${escapeHtml(item.word)}</span>
+                ${item.ipa ? `<span class="wf-ipa">/${escapeHtml(item.ipa)}/</span>` : ""}
+                <button type="button" class="speak-btn speak-btn-sm" data-word="${escapeHtml(item.word)}" title="Nghe phát âm">🔊</button>
+              </div>
+              <div class="wf-meaning">${escapeHtml(item.meaning)}</div>
+              ${item.example ? `<div class="wf-example">${escapeHtml(item.example)}</div>` : ""}
+            </div>`
+            )
+            .join("")}
+        </div>`;
+    }
+  }
+
+  let collocationsHtml = "";
+  if (data.collocations && data.collocations.length > 0) {
+    collocationsHtml = `
+      <div class="collocation-box">
+        <div class="collocation-title">🔗 Collocations & Cụm từ thường gặp</div>
+        ${data.collocations
+          .map(
+            (c) => `
+          <div class="collocation-item">
+            <div class="collocation-phrase">
+              ${escapeHtml(c.phrase)}
+              <button type="button" class="speak-btn speak-btn-sm" data-word="${escapeHtml(c.phrase)}" title="Nghe">🔊</button>
+            </div>
+            <div class="wf-meaning">${escapeHtml(c.meaning)}</div>
+            ${c.example ? `<div class="wf-example">${escapeHtml(c.example)}</div>` : ""}
+          </div>`
+          )
+          .join("")}
+      </div>`;
+  }
+
+  const rootDisplay = data.root_word || data.word;
+  el.innerHTML = `
+    <h3>
+      ${escapeHtml(rootDisplay)}
+      <button type="button" class="speak-btn" data-word="${escapeHtml(rootDisplay)}" title="Nghe phát âm từ gốc (Alt+S)">🔊</button>
+    </h3>
+    ${sectionsHtml || `<div class="empty-hint">Không tìm thấy họ từ liên quan.</div>`}
+    ${collocationsHtml}
+  `;
+  el.classList.add("visible");
+
+  el.querySelectorAll(".speak-btn[data-word]").forEach((btn) => {
+    btn.addEventListener("click", () => speak(btn.dataset.word, "en-US"));
+  });
+}
+
+async function renderWordFamilyList() {
+  const list = $("wordFamilyList");
+  const items = await Storage.getWordFamilies();
+  if (items.length === 0) {
+    list.innerHTML = `<li class="empty-hint" style="cursor:default;border:none;background:none;padding:2px 0;">Chưa có từ nào được lưu.</li>`;
+    return;
+  }
+  list.innerHTML = items
+    .map(
+      (item) => `
+      <li data-word="${escapeHtml(item.root_word || item.word)}">
+        <span class="item-word">${escapeHtml(item.root_word || item.word)}</span>
+        <span class="item-sub">${escapeHtml(item.word || "")}</span>
+        <button type="button" class="delete-btn" title="Xóa mục này">✕</button>
+      </li>`
+    )
+    .join("");
+
+  list.querySelectorAll("li[data-word]").forEach((li) => {
+    li.addEventListener("click", () => {
+      const found = items.find(
+        (x) =>
+          (x.root_word || x.word || "").toLowerCase() ===
+          li.dataset.word.toLowerCase()
+      );
+      if (found) renderWordFamilyResult(found);
+    });
+    li.querySelector(".delete-btn").addEventListener("click", async (e) => {
+      e.stopPropagation();
+      await Storage.deleteWordFamily(li.dataset.word);
+      await renderWordFamilyList();
+    });
+  });
+}
+
+$("wordFamilyForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const input = $("wordFamilyInput");
+  const word = input.value.trim();
+  if (!word) return;
+
+  const statusEl = $("wordFamilyStatus");
+  const submitBtn = e.target.querySelector("button");
+  $("wordFamilyResult").classList.remove("visible");
+  setStatus(statusEl, "Đang phân tích Word Family...", "loading");
+  submitBtn.disabled = true;
+
+  try {
+    const data = await Api.getWordFamily(word);
+    renderWordFamilyResult(data);
+    await Storage.addWordFamily(data);
+    await renderWordFamilyList();
+    setStatus(statusEl, "");
+    input.value = "";
+  } catch (err) {
+    setStatus(statusEl, err.message, "error");
+  } finally {
+    submitBtn.disabled = false;
+  }
+});
+
 // ---- Init ----
 renderTranslateList();
 renderWordList();
@@ -699,3 +904,10 @@ renderPhraseList();
 renderUsageList();
 renderCompareList();
 renderSynonymsList();
+renderWordFamilyList();
+
+// Tự động focus vào ô nhập đầu tiên khi vừa mở popup
+const activeFirstInput = document.querySelector(".tab-panel.active input, .tab-panel.active textarea");
+if (activeFirstInput) {
+  activeFirstInput.focus();
+}

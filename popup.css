@@ -14,7 +14,7 @@ body::-webkit-scrollbar {
 }
 
 body {
-  width: 380px;
+  width: 460px;
   max-height: 560px;
   overflow-y: auto;
   margin: 0;
@@ -51,24 +51,19 @@ body {
   display: flex;
   border-bottom: 1px solid #e5e7eb;
   background: white;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.tabs::-webkit-scrollbar {
-  display: none;
 }
 
 .tab-btn {
-  flex: 1 0 auto;
-  padding: 10px 8px;
+  flex: 1;
+  padding: 10px 3px;
   border: none;
   background: none;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 11.5px;
   color: #6b7280;
   border-bottom: 2px solid transparent;
   white-space: nowrap;
+  text-align: center;
 }
 
 .tab-btn.active {
@@ -554,4 +549,131 @@ main {
   font-size: 11.5px;
   color: #6b7280;
   margin-top: 1px;
+}
+
+/* ---- Word Family Styles ---- */
+.wf-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 10px 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wf-badge-noun {
+  color: #1d4ed8;
+  background: #eff6ff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 11.5px;
+}
+
+.wf-badge-verb {
+  color: #15803d;
+  background: #f0fdf4;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 11.5px;
+}
+
+.wf-badge-adj {
+  color: #b45309;
+  background: #fef3c7;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 11.5px;
+}
+
+.wf-badge-adv {
+  color: #6b21a8;
+  background: #f3e8ff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 11.5px;
+}
+
+.wf-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  background: white;
+}
+
+.wf-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.wf-ipa {
+  font-weight: 400;
+  color: #2563eb;
+  font-size: 12px;
+}
+
+.wf-meaning {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  color: #1f2937;
+}
+
+.wf-example {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.collocation-box {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.collocation-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.collocation-item {
+  font-size: 12.5px;
+  padding: 4px 0;
+  border-bottom: 1px dashed #f3f4f6;
+  line-height: 1.4;
+}
+
+.collocation-item:last-child {
+  border-bottom: none;
+}
+
+.collocation-phrase {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.shortcut-hint {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 12px;
+  text-align: center;
+  padding-top: 8px;
+  border-top: 1px dashed #e5e7eb;
+}
+
+.shortcut-hint kbd {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-size: 10px;
+  font-family: inherit;
+  color: #4b5563;
 }

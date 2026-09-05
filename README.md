@@ -11,8 +11,13 @@
 - 📖 **Giải nghĩa cụm từ (Phrasal Verbs & Idioms)**: Phân tích nghĩa đen từng từ, nghĩa thực tế và cung cấp cách liên tưởng hình ảnh/logic giúp ghi nhớ lâu.
 - 💡 **Cách dùng từ theo ngữ cảnh**: Giải thích ngữ cảnh nên sử dụng kèm ví dụ minh họa và các ghi chú về sắc thái (trang trọng/thân mật/chuyên ngành).
 - ⚖️ **So sánh từ gần nghĩa**: Phân biệt điểm khác biệt giữa 2 từ gần nghĩa (ví dụ: `search` vs `seek`), hướng dẫn khi nào nên dùng từ A thay vì từ B.
-- 🔍 **Tìm từ đồng nghĩa**: Tìm kiếm các từ đồng nghĩa kèm phiên âm IPA, từ loại và giải thích ngữ cảnh phân biệt.
-- 🔊 **Phát âm âm thanh**: Tích hợp công nghệ Speech Synthesis giúp nghe âm thanh đọc mẫu đa ngôn ngữ.
+- 🌿 **Word Family (Họ từ & Collocations)**: Mở rộng toàn bộ các biến thể từ loại xung quanh một từ (Danh từ, Động từ, Tính từ, Trạng từ) kèm phiên âm IPA, nghĩa tiếng Việt, phát âm mẫu và gợi ý các cụm từ/giới từ thường đi kèm (Collocations).
+- ⌨️ **Hệ thống phím tắt tiện lợi**:
+  - `Ctrl + Shift + E`: Mở nhanh tiện ích Learn English từ bất kỳ trang web nào trên trình duyệt.
+  - `Alt + 1` đến `Alt + 7`: Chuyển đổi nhanh giữa 7 tab tính năng.
+  - `Enter` / `Ctrl + Enter`: Tra cứu / Dịch tức thì không cần dùng chuột.
+  - `Alt + S`: Nghe phát âm kết quả hiện tại ngay lập tức.
+  - `Escape`: Xóa nhanh nội dung ô tìm kiếm.
 
 ---
 
